@@ -1,0 +1,89 @@
+{
+  "name": "Product",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Product name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Product description"
+    },
+    "price": {
+      "type": "number",
+      "description": "Product price"
+    },
+    "original_price": {
+      "type": "number",
+      "description": "Original price before discount"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "furniture",
+        "clothes",
+        "jewelry",
+        "electronics"
+      ],
+      "description": "Product category"
+    },
+    "subcategory": {
+      "type": "string",
+      "description": "Product subcategory"
+    },
+    "brand": {
+      "type": "string",
+      "description": "Product brand"
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Product image URLs"
+    },
+    "in_stock": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether product is in stock"
+    },
+    "stock_quantity": {
+      "type": "number",
+      "default": 0,
+      "description": "Available stock quantity"
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether product is featured"
+    },
+    "rating": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5,
+      "description": "Product rating"
+    },
+    "review_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of reviews"
+    },
+    "specifications": {
+      "type": "object",
+      "description": "Product specifications"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Product tags for search"
+    }
+  },
+  "required": [
+    "name",
+    "price",
+    "category"
+  ]
+}
