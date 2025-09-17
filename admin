@@ -1,0 +1,394 @@
+import React, { useState } from "react";
+import { Product } from "@/entities/Product";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Package, Loader2 } from "lucide-react";
+
+export default function Admin() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [product, setProduct] = useState({
+    name: "",
+    description: "",
+    price: "",
+    original_price: "",
+    category: "",
+    subcategory: "",
+    brand: "",
+    images: [""],
+    in_stock: true,
+    stock_quantity: "",
+    featured: false,
+    rating: "",
+    review_count: "",
+    specifications: {},
+    tags: [""]
+  });
+
+  const handleInputChange = (field, value) => {
+    setProduct(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleImageChange = (index, value) => {
+    const newImages = [...product.images];
+    newImages[index] = value;
+    setProduct(prev => ({
+      ...prev,
+      images: newImages
+    }));
+  };
+
+  const addImageField = () => {
+    setProduct(prev => ({
+      ...prev,
+      images: [...prev.images, ""]
+    }));
+  };
+
+  const removeImageField = (index) => {
+    setProduct(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleTagChange = (index, value) => {
+    const newTags = [...product.tags];
+    newTags[index] = value;
+    setProduct(prev => ({
+      ...prev,
+      tags: newTags
+    }));
+  };
+
+  const addTagField = () => {
+    setProduct(prev => ({
+      ...prev,
+      tags: [...prev.tags, ""]
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      const productData = {
+        ...product,
+        price: parseFloat(product.price),
+        original_price: product.original_price ? parseFloat(product.original_price) : undefined,
+        stock_quantity: product.stock_quantity ? parseInt(product.stock_quantity) : undefined,
+        rating: product.rating ? parseFloat(product.rating) : undefined,
+        review_count: product.review_count ? parseInt(product.review_count) : undefined,
+        images: product.images.filter(img => img.trim() !== ""),
+        tags: product.tags.filter(tag => tag.trim() !== "")
+      };
+
+      await Product.create(productData);
+      
+      // Reset form
+      setProduct({
+        name: "",
+        description: "",
+        price: "",
+        original_price: "",
+        category: "",
+        subcategory: "",
+        brand: "",
+        images: [""],
+        in_stock: true,
+        stock_quantity: "",
+        featured: false,
+        rating: "",
+        review_count: "",
+        specifications: {},
+        tags: [""]
+      });
+      
+      alert("Product added successfully!");
+    } catch (error) {
+      console.error('Error adding product:', error);
+      alert("Error adding product. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="flex items-center space-x-3 mb-8">
+          <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center">
+            <Package className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-slate-800">Product Admin</h1>
+            <p className="text-slate-600">Add new products to your store</p>
+          </div>
+        </div>
+
+        <Card className="border-0 shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Plus className="w-5 h-5" />
+              <span>Add New Product</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Basic Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="name">Product Name *</Label>
+                  <Input
+                    id="name"
+                    value={product.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    placeholder="Enter product name"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="brand">Brand</Label>
+                  <Input
+                    id="brand"
+                    value={product.brand}
+                    onChange={(e) => handleInputChange('brand', e.target.value)}
+                    placeholder="Enter brand name"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={product.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  placeholder="Enter product description"
+                  className="h-24"
+                />
+              </div>
+
+              {/* Category & Subcategory */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="category">Category *</Label>
+                  <Select value={product.category} onValueChange={(value) => handleInputChange('category', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="furniture">Furniture</SelectItem>
+                      <SelectItem value="clothes">Clothes</SelectItem>
+                      <SelectItem value="jewelry">Jewelry</SelectItem>
+                      <SelectItem value="electronics">Electronics</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="subcategory">Subcategory</Label>
+                  <Input
+                    id="subcategory"
+                    value={product.subcategory}
+                    onChange={(e) => handleInputChange('subcategory', e.target.value)}
+                    placeholder="Enter subcategory"
+                  />
+                </div>
+              </div>
+
+              {/* Pricing */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="price">Price ($) *</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    step="0.01"
+                    value={product.price}
+                    onChange={(e) => handleInputChange('price', e.target.value)}
+                    placeholder="0.00"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="original_price">Original Price ($)</Label>
+                  <Input
+                    id="original_price"
+                    type="number"
+                    step="0.01"
+                    value={product.original_price}
+                    onChange={(e) => handleInputChange('original_price', e.target.value)}
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
+              {/* Stock */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="stock_quantity">Stock Quantity</Label>
+                  <Input
+                    id="stock_quantity"
+                    type="number"
+                    value={product.stock_quantity}
+                    onChange={(e) => handleInputChange('stock_quantity', e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
+                <div className="flex items-center space-x-4 pt-8">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="in_stock"
+                      checked={product.in_stock}
+                      onCheckedChange={(checked) => handleInputChange('in_stock', checked)}
+                    />
+                    <Label htmlFor="in_stock">In Stock</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="featured"
+                      checked={product.featured}
+                      onCheckedChange={(checked) => handleInputChange('featured', checked)}
+                    />
+                    <Label htmlFor="featured">Featured Product</Label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Rating */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="rating">Rating (0-5)</Label>
+                  <Input
+                    id="rating"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    value={product.rating}
+                    onChange={(e) => handleInputChange('rating', e.target.value)}
+                    placeholder="0.0"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="review_count">Review Count</Label>
+                  <Input
+                    id="review_count"
+                    type="number"
+                    value={product.review_count}
+                    onChange={(e) => handleInputChange('review_count', e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+
+              {/* Images */}
+              <div>
+                <Label>Product Images</Label>
+                <div className="space-y-2 mt-2">
+                  {product.images.map((image, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <Input
+                        value={image}
+                        onChange={(e) => handleImageChange(index, e.target.value)}
+                        placeholder="Enter image URL"
+                        className="flex-1"
+                      />
+                      {product.images.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => removeImageField(index)}
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addImageField}
+                    className="mt-2"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Image
+                  </Button>
+                </div>
+              </div>
+
+              {/* Tags */}
+              <div>
+                <Label>Product Tags</Label>
+                <div className="space-y-2 mt-2">
+                  {product.tags.map((tag, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <Input
+                        value={tag}
+                        onChange={(e) => handleTagChange(index, e.target.value)}
+                        placeholder="Enter tag"
+                        className="flex-1"
+                      />
+                      {product.tags.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setProduct(prev => ({
+                            ...prev,
+                            tags: prev.tags.filter((_, i) => i !== index)
+                          }))}
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addTagField}
+                    className="mt-2"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Tag
+                  </Button>
+                </div>
+              </div>
+
+              <Button 
+                type="submit" 
+                size="lg" 
+                className="w-full bg-slate-800 hover:bg-slate-700"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Adding Product...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Product
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
