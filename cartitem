@@ -1,0 +1,27 @@
+{
+  "name": "CartItem",
+  "type": "object",
+  "properties": {
+    "product_id": {
+      "type": "string",
+      "description": "ID of the product"
+    },
+    "quantity": {
+      "type": "number",
+      "default": 1,
+      "description": "Quantity of the product"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user who added to cart"
+    },
+    "selected_options": {
+      "type": "object",
+      "description": "Selected product options like size, color etc"
+    }
+  },
+  "required": [
+    "product_id",
+    "user_email"
+  ]
+}
